@@ -1,0 +1,10 @@
+Uses zca-js 2.2.0 (MIT), maintained by RFS-ADRENO, truong9c2208 and JustKemForFun.
+Uses the Model Context Protocol TypeScript SDK (MIT) and Zod (MIT).
+Dependencies are installed from npm and retain their included licenses.
+
+The optional phone-history guide references ardennguyen/zalo-agent-cli
+(CC-BY-NC-SA-4.0 at the reviewed revision). That software is not bundled,
+installed, or executed by this package. The local importer reads its documented
+SQLite data format; no upstream sync-v2 implementation is copied here.
+
+Zalo is a trademark of its owner. This project is not affiliated with Zalo/VNG.

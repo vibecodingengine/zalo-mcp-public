@@ -1,0 +1,14 @@
+node_modules/
+.env*
+*.log
+*.db*
+*.sqlite*
+*.jsonl
+*session*.json
+*connection*.json
+*.png
+.private-state/
+data/
+coverage/
+*.tgz
+.DS_Store
