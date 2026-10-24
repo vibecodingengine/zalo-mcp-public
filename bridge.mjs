@@ -2,9 +2,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {Zalo} from 'zca-js';
 import {Store} from './store.mjs';
+import {BrowserHistory} from './browser-history.mjs';
 
 export class Bridge {
   constructor(dir,{clientFactory=()=>new Zalo({selfListen:true,checkUpdate:false,logging:false}),pageTimeout=8000,maxPages=5}={}) {
+    this.browser=new BrowserHistory(dir);
     this.dir=dir;this.clientFactory=clientFactory;this.pageTimeout=pageTimeout;this.maxPages=maxPages;
     this.generation=0;this.api=null;this.store=null;this.state='idle';this.backfill={state:'not_started'};
     this.lastError=null;this.account=null;this.connectionStarted=null;this.disconnectedAt=null;this.inflight=null;
@@ -14,12 +16,13 @@ export class Bridge {
       if(/^\d+$/.test(id)&&fs.existsSync(path.join(dir,'accounts',id,'messages.db'))){this.account=id;this.store=new Store(path.join(dir,'accounts',id,'messages.db'));}
     }
   }
-  status(){return {state:this.state,connected:this.state==='connected',account_id:this.account,read_only:true,
+  status(){return {state:this.state,connected:this.state==='connected',account_id:this.account,read_only:true,browser_history:{configured:!!this.browser.config,account_id:this.browser.config?.account_id??null},
     pid:process.pid,checked_at:new Date().toISOString(),connected_at:this.connectionStarted,
     disconnected_at:this.disconnectedAt,last_error:this.lastError,backfill:this.backfill,
     coverage:this.store?.coverage()??null,qr_path:this.state==='awaiting_scan'?path.join(this.dir,'login-qr.png'):undefined};}
   async begin(resume=false) {
     if(this.inflight || ['connected','connecting','awaiting_scan','confirming'].includes(this.state))return this.status();
+    if(this.browser.config)throw new Error('BROWSER_ATTACHED_DO_NOT_START_SECOND_SESSION');
     const credentialFile=path.join(this.dir,'session.json');
     if(resume && !fs.existsSync(credentialFile))throw new Error('NO_SAVED_SESSION');
     const gen=++this.generation;this.state='connecting';this.lastError=null;
@@ -83,6 +86,9 @@ export class Bridge {
   }
   disconnect(){++this.generation;this.api?.listener.stop();this.api=null;this.state='stopped';this.disconnectedAt=new Date().toISOString();if(this.backfill.state==='running')this.backfill.state='interrupted';try{fs.unlinkSync(path.join(this.dir,'login-qr.png'));}catch{}return this.status();}
   call(method,args){
+    if(method==='web_connect'){if(['connected','connecting','awaiting_scan','confirming'].includes(this.state))throw new Error('STOP_LISTENER_BEFORE_WEB_CONNECT');return this.browser.connect(args);}
+    if(method==='web_disconnect')return this.browser.disconnect();
+    if(['web_status','web_conversations','web_history'].includes(method))return this.browser.query(method.slice(4),args);
     if(method==='status')return this.status();
     if(method==='login')return this.begin(false);
     if(method==='resume')return this.begin(true);

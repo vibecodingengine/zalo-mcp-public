@@ -12,3 +12,5 @@ data/
 coverage/
 *.tgz
 .DS_Store
+
+browser-history.json

@@ -13,7 +13,7 @@ Give Muse this repository URL and the following task:
 Commands:
 
 ```sh
-npm install -g git+https://github.com/vibecodingengine/zalo-mcp-public.git#v0.1.0
+npm install -g git+https://github.com/vibecodingengine/zalo-mcp-public.git#v0.2.0
 zalo-readonly login
 zalo-readonly status
 zalo-readonly config
@@ -37,3 +37,13 @@ host's actual VM lifecycle. Verify rather than promising 24/7 uptime. Installati
 does not create a scheduled AI task. If the user requests proactive checking, use
 the host's supported scheduler, read `events` with a saved per-account cursor,
 ignore historical/self records, and notify only for meaningful new items.
+
+## Existing web conversation history (v0.2.0)
+
+If the user needs history already visible in Zalo Web, follow WEB-HISTORY.md
+and prefer `zalo_web_conversations` / `zalo_web_history`. Use an explicitly
+authorized local CDP browser with a dedicated profile and `web-connect`.
+Do not run the listener `login` flow as well for the same account. Do not claim
+that an extension-controlled browser necessarily exposes CDP, or that this
+package can import the user's normal Chrome login automatically. Keep the
+endpoint on loopback. Report browser-source coverage separately from cache data.

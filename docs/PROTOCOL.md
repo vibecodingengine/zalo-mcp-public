@@ -1,6 +1,6 @@
 # Protocol notes
 
-The only online engine used here is `zca-js@2.2.0` (MIT):
+The listener engine used here is `zca-js@2.2.0` (MIT):
 
 - `loginQR()` obtains a normal user-confirmed Zalo Web session.
 - `login(credentials)` reuses the saved session on explicit `resume`.
@@ -16,3 +16,8 @@ do not open a connection. No raw protocol key/cookie API is exposed.
 
 Phone history `transfer-sync-v2` is researched/documented separately in HISTORY.md,
 not implemented by this engine. No claim of a full archive or fixed replay window.
+
+Version 0.2.0 also supports an explicitly attached browser history source.
+It uses fixed CDP Runtime.evaluate calls to query the web app's existing local
+message storage/decryption facade. This is not a generic debugger or a new Zalo
+HTTP history endpoint. See WEB-HISTORY.md for source evidence and coverage.

@@ -10,3 +10,8 @@
 - Do not copy another machine's session credentials. Prefer an explicit new login in the destination environment.
 - Never commit runtime state or real personal identifiers. Tests are offline/synthetic; do not run live login as a release test.
 - Run `npm test` and inspect `npm pack --dry-run` before a release. Keep package version and documented tag consistent.
+
+- For history visible in Zalo Web prefer web_conversations/web_history after explicit web-connect. Legacy history/search/events remain listener-cache queries.
+- Browser attachment requires a user-authorized loopback CDP browser; never expose its port or silently extract a normal Chrome profile. Prefer a Zalo-only browser profile.
+- Do not run listener login alongside the browser session for the same account. Browser history is partial and account-scoped; never mix it with a different listener account.
+- The page reader calls the already-loaded storage read facade for decryption. Do not export keys, add generic eval/debugger tools or return raw ciphertext when the reader changes.

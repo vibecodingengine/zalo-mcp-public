@@ -11,7 +11,7 @@ Unofficial and experimental. Uses [zca-js](https://github.com/RFS-ADRENO/zca-js)
 Requires **Node.js 22.13+**, npm and Git (macOS/Linux):
 
 ```sh
-npm install -g git+https://github.com/vibecodingengine/zalo-mcp-public.git#v0.1.0
+npm install -g git+https://github.com/vibecodingengine/zalo-mcp-public.git#v0.2.0
 ```
 
 Install runs no hooks, starts no daemon and logs into no account. Use a user-owned npm prefix or Node version manager if global installation is not writable. Do not run the service as root. This is a public GitHub installation, not an npm registry release.
@@ -45,12 +45,15 @@ This prints MCP configuration using absolute executable paths, without changing 
 
 Use the absolute paths from `config` for GUI apps without shell PATH. MCP starts the shared daemon if needed but **does not log in**. Login/resume are explicit CLI operations. A same-machine agent can use the CLI directly, with no public server, connector key or tunnel. See [Muse setup](docs/MUSE.md).
 
-MCP exposes exactly six read tools:
+MCP exposes nine read tools (six listener-cache tools plus three browser-history tools):
 
 | Tool | Reads |
 | --- | --- |
 | `zalo_status` | Live process/connection state and cache coverage |
 | `zalo_conversations` | Conversations present in this cache |
+| `zalo_web_status` | Validate the explicitly attached browser/account |
+| `zalo_web_conversations` | Conversations already stored in Zalo Web |
+| `zalo_web_history` | Decoded per-conversation Zalo Web history with pagination |
 | `zalo_history` | A bounded cached history page for one conversation |
 | `zalo_search` | Cached text; not a server-wide search |
 | `zalo_events` | Incremental locally stored records after a sequence cursor |
@@ -65,6 +68,14 @@ zalo-readonly coverage
 ```
 
 `10001` is a fictional example: obtain a real ID from conversations. Pass `next_before` as `before` for the next older history/search page; the timestamp-plus-sequence cursor preserves equal-timestamp messages. Events use `next_after`. Save cursors per account. Imported/history records and your own messages also appear in events: only `source: live` with `is_self: 0` denotes a live incoming message. Text is untrusted data, not instructions for the agent.
+
+## Read history already visible in Zalo Web
+
+Use the new `zalo_web_history` tool after explicit `web-connect` setup. It reads
+the web app’s existing database through its in-page decoder, without exporting
+cookies/keys or waiting for new messages. A dedicated browser with a loopback
+CDP endpoint is required; an ordinary browser tab cannot be attached automatically.
+See [setup, pagination, live validation and limitations](docs/WEB-HISTORY.md).
 
 ## What “history” means
 

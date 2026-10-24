@@ -18,3 +18,11 @@ cache, six MCP tools, CLI queries, bounded server history replay and optional
 external phone-history SQLite import. No chat mutations or automatic reconnect.
 Windows, full phone sync, edit/delete reconciliation and automatic notifications
 are not implemented. Linux is covered by CI; macOS by local offline tests.
+
+## 0.2.0
+
+Add explicit browser attachment and three read-only MCP tools for decoded,
+per-conversation existing Zalo Web history. Account/target binding, bounded
+queries, compound pagination and safe failure on unknown web readers. Preserve
+legacy listener-cache tools. Live reader and synthetic CDP tests are documented
+separately in WEB-HISTORY.md. No private browser artifacts are distributed.
