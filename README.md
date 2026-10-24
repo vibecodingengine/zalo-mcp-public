@@ -8,10 +8,10 @@ Unofficial and experimental. Uses [zca-js](https://github.com/RFS-ADRENO/zca-js)
 
 ## One-command installation
 
-Requires **Node.js 22.13+**, npm and Git (macOS/Linux):
+Requires **Node.js 22.16+**, npm and Git (macOS/Linux):
 
 ```sh
-npm install -g git+https://github.com/vibecodingengine/zalo-mcp-public.git#v0.2.0
+npm install -g git+https://github.com/vibecodingengine/zalo-mcp-public.git#v0.3.0
 ```
 
 Install runs no hooks, starts no daemon and logs into no account. Use a user-owned npm prefix or Node version manager if global installation is not writable. Do not run the service as root. This is a public GitHub installation, not an npm registry release.
@@ -45,10 +45,11 @@ This prints MCP configuration using absolute executable paths, without changing 
 
 Use the absolute paths from `config` for GUI apps without shell PATH. MCP starts the shared daemon if needed but **does not log in**. Login/resume are explicit CLI operations. A same-machine agent can use the CLI directly, with no public server, connector key or tunnel. See [Muse setup](docs/MUSE.md).
 
-MCP exposes nine read tools (six listener-cache tools plus three browser-history tools):
+MCP exposes ten read tools (six cache tools, three browser-history tools and sync progress):
 
 | Tool | Reads |
 | --- | --- |
+| `zalo_sync_status` | Progress of an explicitly started phone sync |
 | `zalo_status` | Live process/connection state and cache coverage |
 | `zalo_conversations` | Conversations present in this cache |
 | `zalo_web_status` | Validate the explicitly attached browser/account |
@@ -69,6 +70,30 @@ zalo-readonly coverage
 
 `10001` is a fictional example: obtain a real ID from conversations. Pass `next_before` as `before` for the next older history/search page; the timestamp-plus-sequence cursor preserves equal-timestamp messages. Events use `next_after`. Save cursors per account. Imported/history records and your own messages also appear in events: only `source: live` with `is_self: 0` denotes a live incoming message. Text is untrusted data, not instructions for the agent.
 
+## Restore phone history into SQLite (v0.3.0, experimental)
+
+With this bridge already connected, and no competing browser listener:
+
+```sh
+zalo-readonly sync-mobile '{"days":14}'
+zalo-readonly sync-status
+zalo-readonly search '{"query":"hello"}'
+# If needed:
+zalo-readonly sync-cancel
+```
+
+Confirm on the phone if prompted. The CLI returns immediately; poll status until
+finished or failed. First use downloads hash-pinned official decoding assets.
+Only plain text messages are imported, as `source: phone_sync`; they are not new
+incoming notifications. Sync conversation IDs use `sync:oneone/...` or
+`sync:group/...` and are intentionally separate from live numeric IDs; sender
+identity and self status are unresolved. This can show two entries for the same
+conversation. Read the sync entry returned by `conversations` or use `search`.
+
+Upgrade with `shutdown`, install v0.3.0, then explicitly `resume` on the same
+machine/data directory. This retains the database and saved session; resume may
+fail if another login invalidated it. Never copy credentials from another host.
+
 ## Read history already visible in Zalo Web
 
 Use the new `zalo_web_history` tool after explicit `web-connect` setup. It reads
@@ -81,7 +106,7 @@ See [setup, pagination, live validation and limitations](docs/WEB-HISTORY.md).
 
 - **Live cache:** messages received while this listener runs; survives restart.
 - **Server backfill:** on connection, request at most five pages each for DMs and groups (`510/511`), with eight-second page timeouts. Empty responses are possible. Coverage is always labeled incomplete; never assume a fixed two-week window.
-- **Phone-held older history:** requires the separate phone-confirmed `transfer-sync-v2` flow. This package **does not implement or automatically run** that protocol. It includes an explicit local importer for a supported upstream SQLite export. See [phone sync and import](docs/HISTORY.md). Full historical import is not one-click yet.
+- **Phone history (experimental):** explicit `sync-mobile` uses `transfer-sync-v2` on the existing connection and stores plain text in your SQLite cache. It requires phone confirmation when requested by Zalo. Native account recovery has **not been live-validated**; see [usage and limits](docs/HISTORY.md).
 
 Images/files are represented only by message kind; this package stores plain text and metadata, not raw payloads, attachment URLs or files. Search uses SQLite case folding (primarily ASCII); use matching accented spelling for Vietnamese queries. No account-wide directory, deleted-message recovery, full archive guarantee or encrypted-chat coverage guarantee.
 
@@ -112,7 +137,7 @@ npm test
 npm pack --dry-run
 ```
 
-Tests use synthetic messages and localhost only: persistence/dedupe, tied-timestamp pagination, query bounds, write-tool rejection, authentication, mock connection conflicts/backfill and a real MCP stdio handshake. The earlier zca-js prototype received real incoming/self messages with phone/Mac coexistence; the packaged release has **not** been reauthenticated against a real account, to avoid disturbing an existing listener. Phone history recovery has been source-reviewed, not live-tested for this package.
+Offline tests cover persistence, pagination, RPC/MCP boundaries, replay cursors, phone-sync orchestration, cancellation, download limits and codec hashes. An authorized native login returned an empty offline queue; the official web app recovered an older message in an isolated browser using transfer-sync-v2. **The new native phone-sync implementation has not been account-tested.** No login or scan is required for release checks.
 
 See [security](docs/SECURITY.md), [protocol](docs/PROTOCOL.md), and [release notes](docs/RELEASING.md).
 

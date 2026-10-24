@@ -26,3 +26,12 @@ per-conversation existing Zalo Web history. Account/target binding, bounded
 queries, compound pagination and safe failure on unknown web readers. Preserve
 legacy listener-cache tools. Live reader and synthetic CDP tests are documented
 separately in WEB-HISTORY.md. No private browser artifacts are distributed.
+
+## 0.3.0
+
+Experimental explicit phone-sync CLI, background progress/cancel, existing-socket
+590/601 transfer and 591 cleanup, pinned official codecs, bounded text-only
+SQLite import, and read-only MCP sync status. No account test for this native
+flow. Opaque sync thread IDs remain separate from live IDs; identity mapping,
+attachments and full archives are unsupported. Correct offline replay cursors.
+Requires Node 22.16+ for Zstd. No proprietary codecs or private data bundled.

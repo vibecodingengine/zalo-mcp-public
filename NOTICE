@@ -8,3 +8,9 @@ installed, or executed by this package. The local importer reads its documented
 SQLite data format; no upstream sync-v2 implementation is copied here.
 
 Zalo is a trademark of its owner. This project is not affiliated with Zalo/VNG.
+
+Phone-sync codecs are downloaded on explicit use from the official Zalo CDN,
+with pinned SHA-256 hashes. They remain the property of their owners, are not
+bundled or relicensed here, and are only cached locally. The module-loader VM
+is not a security sandbox; the asset hashes form the trust boundary.
+Acorn (MIT) and google-protobuf (BSD-3-Clause) retain their licenses.

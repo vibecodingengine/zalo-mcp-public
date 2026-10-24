@@ -25,9 +25,9 @@ test('local auth + MCP handshake exposes only read tools and never logs in',asyn
   assert.equal((await (await request('status')).json()).result.state,'idle');
   client=new Client({name:'test',version:'1'});
   await client.connect(new StdioClientTransport({command:process.execPath,args:[path.join(root,'mcp.mjs')],env:{...process.env,ZALO_READONLY_DATA_DIR:dir},stderr:'pipe'}));
-  const list=await client.listTools();assert.equal(list.tools.length,9);
+  const list=await client.listTools();assert.equal(list.tools.length,10);
   assert.ok(list.tools.every(t=>t.annotations.readOnlyHint));
-  assert.ok(!list.tools.some(t=>/send|read_message|delete|login|sync|connect|eval|cookies/.test(t.name)));
+  assert.ok(!list.tools.some(t=>/send|read_message|delete|login|sync_mobile|sync_cancel|connect|eval|cookies/.test(t.name)));
   const s=await client.callTool({name:'zalo_status',arguments:{}});
   assert.equal(JSON.parse(s.content[0].text).state,'idle');
   assert.equal(fs.existsSync(path.join(dir,'session.json')),false);

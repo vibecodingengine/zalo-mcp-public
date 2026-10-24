@@ -2,8 +2,8 @@
 
 ## What is enforced
 
-- Nine MCP query tools. Login/resume/disconnect/shutdown and browser attach/detach are local CLI lifecycle
-  operations, not MCP tools. There is no send/read-receipt/delete API exposed.
+- Ten MCP query tools. Login/resume/disconnect/shutdown and browser attach/detach are local CLI lifecycle
+  operations, not MCP tools. Phone sync start/cancel are also explicit CLI operations. There is no send/read-receipt/delete API exposed.
 - RPC dispatch validates explicit methods and strict schemas; unknown operations
   and extra fields fail. Query limits are 1–100. SQL values are parameterized.
 - RPC binds loopback, checks a random bearer secret and refuses Origin headers.
@@ -57,3 +57,22 @@ Chrome's debug endpoint itself is powerful and unauthenticated. Use a Zalo-only
 profile on a trusted machine and never expose it outside loopback. Our limited
 MCP tools do not constrain other local programs which can reach that endpoint.
 Browser binding metadata is private. The adapter does not persist message bodies.
+
+## Experimental phone sync
+
+Only an explicit sync-mobile call downloads the pinned official codec build.
+Every cached or downloaded asset must match its SHA-256 before parsing/execution.
+The VM is not an isolation boundary; hash-pinned vendor code and npm dependencies
+are trusted. Codec cache stays outside the package. No generic evaluation API.
+
+Signed transfer downloads accept a single HTTPS host/path, refuse redirects and
+userinfo, send no cookies, and enforce byte/time bounds. Payload decompression and
+record counts are bounded. Private identity/ephemeral keys exist in memory and
+are cleared on teardown where practical; JS/WASM cannot guarantee zeroization of
+all copies. URLs and keys are never intentionally persisted or included in errors.
+
+Imported text is stored under the active account with source phone_sync. Sender
+identity remains unresolved and sync IDs are separate from live IDs. Partial imports
+survive failure/cancellation. A phone confirmation is controlled by Zalo; the
+client never attempts to bypass it. Do not confuse downloaded history with live
+incoming events. No file/media attachment content is downloaded.

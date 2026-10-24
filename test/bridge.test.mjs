@@ -8,12 +8,12 @@ import {Bridge} from '../bridge.mjs';
 test('single mock session captures live + history, stops on conflict; no account mutation',async()=>{
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'zalo-bridge-'));
   const listener=new EventEmitter();let starts=0,logins=0;
-  listener.start=()=>{starts++;queueMicrotask(()=>listener.emit('connected'));};
+  listener.start=()=>{starts++;queueMicrotask(()=>{listener.emit('connected');listener.emit('cipher_key','synthetic');});};
   listener.stop=()=>{};
   listener.requestOldMessages=(type,cursor)=>queueMicrotask(()=>listener.emit('old_messages',type===0&&!cursor?[{type:0,threadId:'10001',isSelf:false,data:{msgId:'1',actionId:'1',content:'old',ts:'10'}}]:[],type));
   const api={listener,getContext:()=>({uid:'10000',imei:'synthetic',userAgent:'synthetic',cookie:{toJSON:()=>({cookies:[]})}})};
   const clientFactory=()=>({loginQR:async()=>{logins++;return api;}});
-  const b=new Bridge(dir,{clientFactory,pageTimeout:20,maxPages:3});
+  const b=new Bridge(dir,{clientFactory,pageTimeout:20,maxPages:3,replay:async(listener,type)=>({messages:type===0?[{type:0,threadId:'10001',isSelf:false,data:{msgId:'1',content:'old',ts:'10'}}]:[],more:false,next_cursor:'90'})});
   try{
     await b.begin();await b.begin();await new Promise(r=>setTimeout(r,50));
     assert.equal(logins,1);assert.equal(starts,1);assert.equal(b.store.coverage().messages,1);

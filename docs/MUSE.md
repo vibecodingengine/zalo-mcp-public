@@ -13,7 +13,7 @@ Give Muse this repository URL and the following task:
 Commands:
 
 ```sh
-npm install -g git+https://github.com/vibecodingengine/zalo-mcp-public.git#v0.2.0
+npm install -g git+https://github.com/vibecodingengine/zalo-mcp-public.git#v0.3.0
 zalo-readonly login
 zalo-readonly status
 zalo-readonly config
